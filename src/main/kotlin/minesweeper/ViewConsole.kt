@@ -11,8 +11,7 @@ fun getNumOfMinesFromConsole(): Int {
             numOfMines = readLine()!!.trim().toInt()
             if (numOfMines < 0) {
                 println("Incorrect input, please try again.")
-            }
-            else {
+            } else {
                 return numOfMines
             }
         } catch (e: NumberFormatException) {
@@ -21,6 +20,6 @@ fun getNumOfMinesFromConsole(): Int {
     }
 }
 
-fun printField(field: Array<Array<String>>) {
-    field.forEach { row -> row.forEach { v -> print(v) }; println() }
+fun formatAndPrintFiled(field: Array<Array<Int>>) {
+    field.forEach { row -> println(row.joinToString("").replace("0", ".").replace("-1", "X")) }
 }
