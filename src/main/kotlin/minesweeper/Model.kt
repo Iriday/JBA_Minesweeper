@@ -1,15 +1,63 @@
 package minesweeper
 
 import kotlin.random.Random
+import minesweeper.MoveResult.*
 
-val mine = -1
-val empty = 0
+private val mine = -1
+private val empty = 0
+private val mark = -2
+private val hintNumbs = 1..8
 
-fun generateSafeField(size: Int): Array<Array<Int>> {
+private lateinit var gridSizeRange: IntRange
+private lateinit var initialField: Array<Array<Int>>
+private lateinit var winFieldState: Array<Array<Int>>
+private lateinit var mutableField: Array<Array<Int>>
+private var initPerformed = false
+private var gameOver = false
+
+fun initAndGetGameField(gridSize: Int, numOfMines: Int): Array<Array<Int>> {
+    gridSizeRange = 0 until gridSize
+
+    initialField = generateSafeField(gridSize)
+    addMinesRandPlaces(initialField, numOfMines)
+    addHintsOnField(initialField)
+    winFieldState = replaceMinesWithMarks(initialField)
+    mutableField = deepArrayCopy(initialField)
+
+    initPerformed = true
+    gameOver = false
+
+    return mutableField
+}
+
+fun makeMove(x: Int, y: Int): MoveResult {
+    if (!initPerformed) throw IllegalStateException("Call initAndGetGameField first")
+    if (gameOver) throw IllegalStateException("The game is over, to start again call initAndGetGameField again")
+    if (x !in gridSizeRange || y !in gridSizeRange) throw IllegalArgumentException("Incorrect coords")
+
+    var attemptToMarkHint = false
+    when (mutableField[y][x]) {
+        empty, mine -> mutableField[y][x] = mark
+        mark -> mutableField[y][x] = initialField[y][x]
+        in hintNumbs -> attemptToMarkHint = true
+        else -> throw RuntimeException("Incorrect fieldItem found")
+    }
+    if (attemptToMarkHint) {
+        return ATTEMPT_TO_MARK_HINT
+    }
+    if (deepContentEquals(winFieldState, mutableField)) {
+        gameOver = true
+        return WIN
+    }
+
+    return MARKED_UNMARKED
+}
+
+private fun generateSafeField(size: Int): Array<Array<Int>> {
     return Array(size) { Array(size) { empty } }
 }
 
-fun addMinesRandPlaces(field: Array<Array<Int>>, numOfMines: Int) {
+private fun addMinesRandPlaces(field: Array<Array<Int>>, numOfMines: Int) {
     val coords = getCoordsOfEmptySpots(field)
     if (numOfMines > coords.size) throw IllegalArgumentException("Not enough space for $numOfMines mines")
     for (i in 0 until numOfMines) {
@@ -18,7 +66,7 @@ fun addMinesRandPlaces(field: Array<Array<Int>>, numOfMines: Int) {
     }
 }
 
-fun addHintsOnField(field: Array<Array<Int>>) {
+private fun addHintsOnField(field: Array<Array<Int>>) {
     fun calculateNumOfMinesAround(field: Array<Array<Int>>, i: Int, j: Int): Int {
         val rows = field.size
         val cols = field[0].size
@@ -72,3 +120,7 @@ private fun getCoordsOfEmptySpots(field: Array<Array<Int>>): MutableList<Pair<In
 }
 
 private fun isMine(fieldItem: Int): Int = if (fieldItem == mine) 1 else 0
+
+private fun replaceMinesWithMarks(field: Array<Array<Int>>): Array<Array<Int>> {
+    return field.map { row -> row.map { fieldItem -> if (fieldItem == mine) mark else fieldItem }.toTypedArray() }.toTypedArray()
+}
