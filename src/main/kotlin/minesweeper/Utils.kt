@@ -11,3 +11,7 @@ fun deepContentEquals(a: Array<Array<Int>>, b: Array<Array<Int>>): Boolean {
 fun deepArrayCopy(matrix: Array<Array<Int>>): Array<Array<Int>> {
     return matrix.map { row -> row.map { it }.toTypedArray() }.toTypedArray()
 }
+
+fun createAndFillMatrix(size: Int, item: Int): Array<Array<Int>> {
+    return Array(size) { Array(size) { item } }
+}

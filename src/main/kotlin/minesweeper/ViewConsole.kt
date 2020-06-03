@@ -2,36 +2,40 @@ package minesweeper
 
 import kotlin.NumberFormatException
 import minesweeper.MoveResult.*
+import java.lang.RuntimeException
 
-fun getNextMoveCoordsFromConsole(gameField: Array<Array<Int>>): List<Int> {
+fun getNextMoveFromConsole(gameField: Array<Array<Int>>): PlayerMove {
     while (true) {
         printFiled(addGridCoordinates(formatFiled(gameField)))
-        print("Set/delete mines marks (x and y coordinates): ")
-        val coords: List<Int>
+        print("Set/unset mines marks or claim a cell as free: ")
+        val input = readLine()!!.trim().toUpperCase().split(" ")
+        val playerMove: PlayerMove
         try {
-            coords = readLine()!!.trim().split(" ").map { it.toInt() }
-        } catch (e: NumberFormatException) {
+            playerMove = PlayerMove(input[0].toInt() - 1, input[1].toInt() - 1, MoveOption.valueOf(input[2])) // grid numbers to indexes
+        } catch (e: RuntimeException) {
             println("Incorrect input, please try again.")
             continue
         }
 
-        if (coords.size != 2 || coords[0] !in 1..gameField.size || coords[1] !in 1..gameField.size) {
+        if (playerMove.x !in gameField.indices || playerMove.y !in gameField.indices) {
             println("Incorrect input, please try again.")
         } else {
             println()
-            return coords.map { it - 1 } // grid numbers to indexes
+            return playerMove
         }
     }
 }
 
 fun printMoveOutcome(moveResult: MoveResult) {
     when (moveResult) {
-        MARKED_UNMARKED -> Unit
-        ATTEMPT_TO_MARK_HINT -> println("There is a number here!")
         WIN -> println("Congratulations! You found all the mines!")
+        LOSE -> println("You stepped on a mine and failed!")
+        ATTEMPT_TO_UNCOVER_HINT_AGAIN -> println("There is a number here!")
+        ATTEMPT_TO_UNCOVER_FREE_AGAIN -> println("You already explored this area!")
+        ATTEMPT_TO_MARK_FREE, ATTEMPT_TO_MARK_HINT -> println("This area is already explored, mine can't be here!")
+        MARKED_UNMARKED -> Unit
     }
 }
-
 
 fun getNumOfMinesFromConsole(): Int {
     print("How many mines do you want on the filed? ")
@@ -54,8 +58,9 @@ fun formatFiled(field: Array<Array<Int>>): MutableList<String> {
     return field.map { row ->
         row.joinToString("")
                 .replace("0", ".")
-                .replace("-1", ".")
+                .replace("-1", "/")
                 .replace("-2", "*")
+                .replace("-3", "X")
     }.toMutableList()
 }
 
