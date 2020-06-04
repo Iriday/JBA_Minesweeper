@@ -4,24 +4,34 @@ import kotlin.NumberFormatException
 import minesweeper.MoveResult.*
 import java.lang.RuntimeException
 
-fun getNextMoveFromConsole(gameField: Array<Array<Int>>): PlayerMove {
+fun getNextMoveFromConsole(gameField: Array<Array<Int>>): List<Int> {
     while (true) {
         printFiled(addGridCoordinates(formatFiled(gameField)))
         print("Set/unset mines marks or claim a cell as free: ")
         val input = readLine()!!.trim().toUpperCase().split(" ")
-        val playerMove: PlayerMove
+        val output: List<Int>
+
         try {
-            playerMove = PlayerMove(input[0].toInt() - 1, input[1].toInt() - 1, MoveOption.valueOf(input[2])) // grid numbers to indexes
+            val command =
+                    if (input[2].toLowerCase() == "free") {
+                        1
+                    } else if (input[2].toLowerCase() == "mine") {
+                        2
+                    } else {
+                        println("Incorrect input, please try again.")
+                        continue
+                    }
+            output = listOf(input[0].toInt() - 1, input[1].toInt() - 1, command) // grid numbers to indexes
         } catch (e: RuntimeException) {
             println("Incorrect input, please try again.")
             continue
         }
 
-        if (playerMove.x !in gameField.indices || playerMove.y !in gameField.indices) {
+        if (input.size != 3 || output[0] !in gameField.indices || output[1] !in gameField.indices) {
             println("Incorrect input, please try again.")
         } else {
             println()
-            return playerMove
+            return output
         }
     }
 }

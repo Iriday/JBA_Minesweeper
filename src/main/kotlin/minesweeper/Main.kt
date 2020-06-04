@@ -6,7 +6,7 @@ fun main() {
     // main loop
     do {
         val playerMove = getNextMoveFromConsole(gameField)
-        val moveResult = makeMove(playerMove.x, playerMove.y, playerMove.moveOption)
+        val moveResult = makeMove(playerMove[0], playerMove[1], playerMove[2])
         printMoveOutcome(moveResult)
     } while (moveResult != MoveResult.WIN && moveResult != MoveResult.LOSE)
 }

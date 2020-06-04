@@ -30,41 +30,46 @@ fun initAndGetGameField(gridSize: Int, numOfMines: Int): Array<Array<Int>> {
     return mutableField
 }
 
-fun makeMove(x: Int, y: Int, moveOption: MoveOption): MoveResult {
+fun makeMove(x: Int, y: Int, command: Int): MoveResult {
     if (!initPerformed) throw IllegalStateException("Call initAndGetGameField first")
     if (gameOver) throw IllegalStateException("The game is over, to start again call initAndGetGameField again")
     if (x !in gridSizeRange || y !in gridSizeRange) throw IllegalArgumentException("Incorrect coords")
+    if (command !in 1..2) throw IllegalArgumentException("Incorrect command")
 
-    if (moveOption == MoveOption.MINE) {
-        mutableField[y][x] = when (mutableField[y][x]) {
-            UNEXPLORED -> MARK
-            MARK -> UNEXPLORED
-            FREE -> return ATTEMPT_TO_MARK_FREE
-            in HINT_RANGE -> return ATTEMPT_TO_MARK_HINT
-            else -> throw RuntimeException("Something went wrong")
+    when (command) {
+        2 -> { // mine
+            mutableField[y][x] = when (mutableField[y][x]) {
+                UNEXPLORED -> MARK
+                MARK -> UNEXPLORED
+                FREE -> return ATTEMPT_TO_MARK_FREE
+                in HINT_RANGE -> return ATTEMPT_TO_MARK_HINT
+                else -> throw RuntimeException("Something went wrong")
+            }
         }
-    } else { // FREE
-        when (initialField[y][x]) {
-            in HINT_RANGE -> {
-                if (mutableField[y][x] in HINT_RANGE) return ATTEMPT_TO_UNCOVER_HINT_AGAIN
+        1 -> { // free
+            when (initialField[y][x]) {
+                in HINT_RANGE -> {
+                    if (mutableField[y][x] in HINT_RANGE) return ATTEMPT_TO_UNCOVER_HINT_AGAIN
 
-                mutableField[y][x] = initialField[y][x]
-            }
-            MINE -> {
-                gameOver = true
-                return LOSE
-            }
-            FREE -> {
-                if (mutableField[y][x] == FREE) return ATTEMPT_TO_UNCOVER_FREE_AGAIN
+                    mutableField[y][x] = initialField[y][x]
+                }
+                MINE -> {
+                    gameOver = true
+                    return LOSE
+                }
+                FREE -> {
+                    if (mutableField[y][x] == FREE) return ATTEMPT_TO_UNCOVER_FREE_AGAIN
 
-                uncoverFreeAreaRecursively(initialField, mutableField, x, y)
-                uncoverHintsAroundFreeArea(initialField, mutableField)
+                    uncoverFreeAreaRecursively(initialField, mutableField, x, y)
+                    uncoverHintsAroundFreeArea(initialField, mutableField)
+                }
+                else -> throw RuntimeException("Incorrect fieldItem found")
             }
-            else -> throw RuntimeException("Incorrect fieldItem found")
         }
+        else -> throw RuntimeException("Something went wrong")
     }
 
-    if (isWin(initialField, mutableField)) {
+    if (isAllMinesMarked(initialField, mutableField) || isAllUncoveredIgnoreMines(initialField, mutableField)) {
         gameOver = true
         return WIN
     }
@@ -102,10 +107,6 @@ private fun uncoverHintsAroundFreeArea(initialField: Array<Array<Int>>, mutableF
             }
         }
     }
-}
-
-private fun isWin(initialFiled: Array<Array<Int>>, mutableField: Array<Array<Int>>): Boolean {
-    return isAllMinesMarked(initialFiled, mutableField) || isAllUncoveredIgnoreMines(initialFiled, mutableField)
 }
 
 private fun isAllMinesMarked(initialField: Array<Array<Int>>, mutableField: Array<Array<Int>>): Boolean {
@@ -171,8 +172,6 @@ private fun calculateNumOfItemsAroundItem(field: Array<Array<Int>>, fItemToSeek:
 }
 
 private fun addHintsOnField(field: Array<Array<Int>>) {
-
-
     for (i in field.indices) {
         for (j in field[i].indices) {
             if (field[i][j] != FREE) continue
