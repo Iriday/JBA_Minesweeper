@@ -13,29 +13,44 @@ private val HINT_RANGE = 1..8
 private lateinit var gridSizeRange: IntRange
 private lateinit var initialField: Array<Array<Int>>
 private lateinit var mutableField: Array<Array<Int>>
+private var numberOfMines = -1
+private var gridSizeF = -1
 private var initPerformed = false
+private var initialFieldCreated = false
 private var gameOver = false
 
 fun initAndGetGameField(gridSize: Int, numOfMines: Int): Array<Array<Int>> {
     gridSizeRange = 0 until gridSize
+    gridSizeF = gridSize
+    numberOfMines = numOfMines
 
-    initialField = createAndFillMatrix(gridSize, FREE)
-    addMinesRandPlaces(initialField, numOfMines)
-    addHintsOnField(initialField)
     mutableField = createAndFillMatrix(gridSize, UNEXPLORED)
 
     initPerformed = true
+    initialFieldCreated = false
     gameOver = false
 
     return mutableField
 }
 
 fun makeMove(x: Int, y: Int, command: Int): MoveResult {
+    // input check
     if (!initPerformed) throw IllegalStateException("Call initAndGetGameField first")
     if (gameOver) throw IllegalStateException("The game is over, to start again call initAndGetGameField again")
     if (x !in gridSizeRange || y !in gridSizeRange) throw IllegalArgumentException("Incorrect coords")
     if (command !in 1..2) throw IllegalArgumentException("Incorrect command")
-
+    // init initial game field
+    if (!initialFieldCreated) {
+        if (command == 1) { // command "free"
+            initialField = generateFieldWhereSpecifiedCellIsNotMine(x, y)
+        } else { // command "mine"
+            initialField = createAndFillMatrix(gridSizeF, FREE)
+            addMinesRandPlaces(initialField, numberOfMines)
+            addHintsOnField(initialField)
+        }
+        initialFieldCreated = true
+    }
+    // make move
     when (command) {
         2 -> { // mine
             mutableField[y][x] = when (mutableField[y][x]) {
@@ -68,13 +83,25 @@ fun makeMove(x: Int, y: Int, command: Int): MoveResult {
         }
         else -> throw RuntimeException("Something went wrong")
     }
-
+    // check if win
     if (isAllMinesMarked(initialField, mutableField) || isAllUncoveredIgnoreMines(initialField, mutableField)) {
         gameOver = true
         return WIN
     }
 
     return MARKED_UNMARKED
+}
+
+
+private fun generateFieldWhereSpecifiedCellIsNotMine(x: Int, y: Int): Array<Array<Int>> {
+    var field: Array<Array<Int>>
+    do { // can be optimized
+        field = createAndFillMatrix(gridSizeF, FREE)
+        addMinesRandPlaces(field, numberOfMines)
+    } while (field[y][x] == MINE)
+
+    addHintsOnField(field)
+    return field
 }
 
 private fun uncoverFreeAreaRecursively(initialField: Array<Array<Int>>, mutableField: Array<Array<Int>>, x: Int, y: Int) {
