@@ -75,6 +75,7 @@ fun makeMove(x: Int, y: Int, command: Int): MoveResult {
                 }
                 MINE -> {
                     gameOver = true
+                    copyItemFromMatrixAToMatrixB(initialField, mutableField, MINE)
                     return LOSE
                 }
                 FREE -> {
@@ -241,7 +242,3 @@ private fun getCoordsOfEmptySpots(field: Array<Array<Int>>): MutableList<Pair<In
 }
 
 private fun isEqual(item1: Int, item2: Int): Int = if (item1 == item2) 1 else 0
-
-private fun replaceMinesWithMarks(field: Array<Array<Int>>): Array<Array<Int>> {
-    return field.map { row -> row.map { fieldItem -> if (fieldItem == MINE) MARK else fieldItem }.toTypedArray() }.toTypedArray()
-}

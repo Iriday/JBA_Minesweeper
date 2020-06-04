@@ -15,3 +15,11 @@ fun deepArrayCopy(matrix: Array<Array<Int>>): Array<Array<Int>> {
 fun createAndFillMatrix(size: Int, item: Int): Array<Array<Int>> {
     return Array(size) { Array(size) { item } }
 }
+
+fun <T> copyItemFromMatrixAToMatrixB(a: Array<Array<T>>, b: Array<Array<T>>, itemToCopy: T) {
+    for (i in a.indices) {
+        for (j in a[i].indices) {
+            if (a[i][j] == itemToCopy) b[i][j] = a[i][j]
+        }
+    }
+}

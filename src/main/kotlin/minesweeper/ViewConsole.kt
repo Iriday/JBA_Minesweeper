@@ -6,7 +6,6 @@ import java.lang.RuntimeException
 
 fun getNextMoveFromConsole(gameField: Array<Array<Int>>): List<Int> {
     while (true) {
-        printFiled(addGridCoordinates(formatFiled(gameField)))
         print("Set/unset mines marks or claim a cell as free: ")
         val input = readLine()!!.trim().toUpperCase().split(" ")
         val output: List<Int>
