@@ -60,7 +60,7 @@ fun makeMove(x: Int, y: Int, command: Int): MoveResult {
                 FREE -> {
                     if (mutableField[y][x] == FREE) return ATTEMPT_TO_UNCOVER_FREE_AGAIN
 
-                    uncoverFreeAreaRecursively(initialField, mutableField, x, y)
+                    uncoverFreeAreaRecursively(initialField, mutableField, y, x)
                     uncoverHintsAroundFreeArea(initialField, mutableField)
                 }
                 else -> throw RuntimeException("Incorrect fieldItem found")
@@ -83,17 +83,33 @@ private fun uncoverFreeAreaRecursively(initialField: Array<Array<Int>>, mutableF
     if (x - 1 != -1 && mutableField[x - 1][y] != FREE && initialField[x - 1][y] == FREE) {
         uncoverFreeAreaRecursively(initialField, mutableField, x - 1, y)
     }
+    // top right
+    if (x - 1 != -1 && y + 1 != initialField[0].size && mutableField[x - 1][y + 1] != FREE && initialField[x - 1][y + 1] == FREE) {
+        uncoverFreeAreaRecursively(initialField, mutableField, x - 1, y + 1)
+    }
     // right
     if (y + 1 != initialField[0].size && mutableField[x][y + 1] != FREE && initialField[x][y + 1] == FREE) {
         uncoverFreeAreaRecursively(initialField, mutableField, x, y + 1)
+    }
+    // bottom right
+    if (x + 1 != initialField.size && y + 1 != initialField[0].size && mutableField[x + 1][y + 1] != FREE && initialField[x + 1][y + 1] == FREE) {
+        uncoverFreeAreaRecursively(initialField, mutableField, x + 1, y + 1)
     }
     // bottom
     if (x + 1 != initialField.size && mutableField[x + 1][y] != FREE && initialField[x + 1][y] == FREE) {
         uncoverFreeAreaRecursively(initialField, mutableField, x + 1, y)
     }
+    // left bottom
+    if (x + 1 != initialField.size && y - 1 != -1 && mutableField[x + 1][y - 1] != FREE && initialField[x + 1][y - 1] == FREE) {
+        uncoverFreeAreaRecursively(initialField, mutableField, x + 1, y - 1)
+    }
     // left
     if (y - 1 != -1 && mutableField[x][y - 1] != FREE && initialField[x][y - 1] == FREE) {
         uncoverFreeAreaRecursively(initialField, mutableField, x, y - 1)
+    }
+    // left top
+    if (x - 1 != -1 && y - 1 != -1 && mutableField[x - 1][y - 1] != FREE && initialField[x - 1][y - 1] == FREE) {
+        uncoverFreeAreaRecursively(initialField, mutableField, x - 1, y - 1)
     }
 }
 
