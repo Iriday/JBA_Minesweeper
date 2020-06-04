@@ -20,6 +20,11 @@ private var initialFieldCreated = false
 private var gameOver = false
 
 fun initAndGetGameField(gridSize: Int, numOfMines: Int): Array<Array<Int>> {
+    if (gridSize < 2) throw IllegalArgumentException("gridSize must be >= 2")
+    if (numOfMines < 1 || numOfMines >= (gridSize * gridSize)) {
+        throw IllegalArgumentException("numOfMines must be > 0 and less than gridSize * gridSize")
+    }
+
     gridSizeRange = 0 until gridSize
     gridSizeF = gridSize
     numberOfMines = numOfMines

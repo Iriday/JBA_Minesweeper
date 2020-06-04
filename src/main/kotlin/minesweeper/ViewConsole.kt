@@ -47,14 +47,14 @@ fun printMoveOutcome(moveResult: MoveResult) {
     }
 }
 
-fun getNumOfMinesFromConsole(): Int {
+fun getNumOfMinesFromConsole(gridSize: Int): Int {
     print("How many mines do you want on the filed? ")
     var numOfMines: Int
     while (true) {
         try {
             numOfMines = readLine()!!.trim().toInt()
-            if (numOfMines < 0) {
-                println("Incorrect input, please try again.")
+            if (numOfMines < 1 || numOfMines >= gridSize * gridSize) {
+                println("Incorrect input. Number of mines must be in range from 1 to ${gridSize * gridSize - 1} (inclusive). Please tray again.")
             } else {
                 return numOfMines
             }

@@ -1,7 +1,7 @@
 package minesweeper
 
 fun main() {
-    val gameField = initAndGetGameField(9, getNumOfMinesFromConsole())
+    val gameField = initAndGetGameField(9, getNumOfMinesFromConsole(9))
 
     // main loop
     do {
