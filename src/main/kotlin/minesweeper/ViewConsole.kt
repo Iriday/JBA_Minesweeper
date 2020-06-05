@@ -35,6 +35,17 @@ fun getNextMoveFromConsole(gameField: Array<Array<Int>>): List<Int> {
     }
 }
 
+fun showMainMenuAndGetOption(): Int{
+    while (true) {
+        println("1. Start game\n0. Exit")
+        when (readLine()!!.trim()) {
+            "1" -> return 1
+            "0" -> return 0
+            else -> println("Incorrect input, please try again.")
+        }
+    }
+}
+
 fun printMoveOutcome(moveResult: MoveResult) {
     when (moveResult) {
         WIN -> println("Congratulations! You found all the mines!")
@@ -44,6 +55,7 @@ fun printMoveOutcome(moveResult: MoveResult) {
         ATTEMPT_TO_MARK_FREE, ATTEMPT_TO_MARK_HINT -> println("This area is already explored, mine can't be here!")
         MARKED_UNMARKED -> Unit
     }
+    println()
 }
 
 fun getNumOfMinesFromConsole(gridSize: Int): Int {
