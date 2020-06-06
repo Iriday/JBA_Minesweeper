@@ -3,11 +3,11 @@ package minesweeper
 import kotlin.random.Random
 import minesweeper.MoveResult.*
 
-// filed items
-private val UNEXPLORED = 0
-private val FREE = -1
-private val MARK = -2
-private val MINE = -3
+// field items
+private const val UNEXPLORED = 0
+private const val FREE = -1
+private const val MARK = -2
+private const val MINE = -3
 private val HINT_RANGE = 1..8
 
 private lateinit var gridSizeRange: IntRange
@@ -90,7 +90,7 @@ fun makeMove(x: Int, y: Int, command: Int): MoveResult {
         else -> throw RuntimeException("Something went wrong")
     }
     // check if win
-    if (isAllMinesMarked(initialField, mutableField) || isAllUncoveredIgnoreMines(initialField, mutableField)) {
+    if (isAllMinesMarked(initialField, mutableField) || isAllFieldItemsUncoveredIgnoreMines(initialField, mutableField)) {
         gameOver = true
         return WIN
     }
@@ -169,18 +169,18 @@ private fun isAllMinesMarked(initialField: Array<Array<Int>>, mutableField: Arra
     return true
 }
 
-private fun isAllUncoveredIgnoreMines(a: Array<Array<Int>>, b: Array<Array<Int>>): Boolean {
-    for (i in a.indices) {
-        for (j in a[i].indices) {
-            if (a[i][j] == MINE) continue
-            if (a[i][j] != b[i][j]) return false
+private fun isAllFieldItemsUncoveredIgnoreMines(initialField: Array<Array<Int>>, mutableField: Array<Array<Int>>): Boolean {
+    for (i in initialField.indices) {
+        for (j in initialField[i].indices) {
+            if (initialField[i][j] == MINE) continue
+            if (initialField[i][j] != mutableField[i][j]) return false
         }
     }
     return true
 }
 
 private fun addMinesRandPlaces(field: Array<Array<Int>>, numOfMines: Int) {
-    val coords = getCoordsOfEmptySpots(field)
+    val coords = getAllCoordsOfItem(field, FREE)
     if (numOfMines > coords.size) throw IllegalArgumentException("Not enough space for $numOfMines mines")
     for (i in 0 until numOfMines) {
         val newMineCoords = coords.removeAt(Random.nextInt(coords.size))
@@ -231,13 +231,13 @@ private fun addHintsOnField(field: Array<Array<Int>>) {
     }
 }
 
-private fun addItemOnField(field: Array<Array<Int>>, filedItem: Int, coordRow: Int, coordCol: Int) {
-    field[coordRow][coordCol] = filedItem
+private fun addItemOnField(field: Array<Array<Int>>, fieldItem: Int, coordRow: Int, coordCol: Int) {
+    field[coordRow][coordCol] = fieldItem
 }
 
-private fun getCoordsOfEmptySpots(field: Array<Array<Int>>): MutableList<Pair<Int, Int>> {
+private fun getAllCoordsOfItem(field: Array<Array<Int>>, item: Int): MutableList<Pair<Int, Int>> {
     val coords = mutableListOf<Pair<Int, Int>>()
-    field.forEachIndexed { i, val_i -> val_i.forEachIndexed { j, val_ij -> if (val_ij == FREE) coords.add(Pair(i, j)) } }
+    field.forEachIndexed { i, val_i -> val_i.forEachIndexed { j, val_ij -> if (val_ij == item) coords.add(Pair(i, j)) } }
     return coords
 }
 

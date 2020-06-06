@@ -4,6 +4,34 @@ import kotlin.NumberFormatException
 import minesweeper.MoveResult.*
 import java.lang.RuntimeException
 
+fun showMainMenuAndGetOption(): Int {
+    while (true) {
+        println("1. Start game\n0. Exit")
+        when (readLine()!!.trim()) {
+            "1" -> return 1
+            "0" -> return 0
+            else -> println("Incorrect input, please try again.")
+        }
+    }
+}
+
+fun getNumOfMinesFromConsole(gridSize: Int): Int {
+    print("How many mines do you want on the filed? ")
+    var numOfMines: Int
+    while (true) {
+        try {
+            numOfMines = readLine()!!.trim().toInt()
+            if (numOfMines < 1 || numOfMines >= gridSize * gridSize) {
+                println("Incorrect input. Number of mines must be in range from 1 to ${gridSize * gridSize - 1} (inclusive). Please tray again.")
+            } else {
+                return numOfMines
+            }
+        } catch (e: NumberFormatException) {
+            println("Incorrect input, please try again.")
+        }
+    }
+}
+
 fun getNextMoveFromConsole(gameField: Array<Array<Int>>): List<Int> {
     while (true) {
         print("Set/unset mines marks or claim a cell as free: ")
@@ -35,17 +63,6 @@ fun getNextMoveFromConsole(gameField: Array<Array<Int>>): List<Int> {
     }
 }
 
-fun showMainMenuAndGetOption(): Int{
-    while (true) {
-        println("1. Start game\n0. Exit")
-        when (readLine()!!.trim()) {
-            "1" -> return 1
-            "0" -> return 0
-            else -> println("Incorrect input, please try again.")
-        }
-    }
-}
-
 fun printMoveOutcome(moveResult: MoveResult) {
     when (moveResult) {
         WIN -> println("Congratulations! You found all the mines!")
@@ -58,22 +75,7 @@ fun printMoveOutcome(moveResult: MoveResult) {
     println()
 }
 
-fun getNumOfMinesFromConsole(gridSize: Int): Int {
-    print("How many mines do you want on the filed? ")
-    var numOfMines: Int
-    while (true) {
-        try {
-            numOfMines = readLine()!!.trim().toInt()
-            if (numOfMines < 1 || numOfMines >= gridSize * gridSize) {
-                println("Incorrect input. Number of mines must be in range from 1 to ${gridSize * gridSize - 1} (inclusive). Please tray again.")
-            } else {
-                return numOfMines
-            }
-        } catch (e: NumberFormatException) {
-            println("Incorrect input, please try again.")
-        }
-    }
-}
+fun printFiled(field: List<String>) = field.forEach { println(it) }
 
 fun formatFiled(field: Array<Array<Int>>): MutableList<String> {
     return field.map { row ->
@@ -106,5 +108,3 @@ fun addGridCoordinates(field: MutableList<String>): MutableList<String> {
 
     return field
 }
-
-fun printFiled(field: List<String>) = field.forEach { println(it) }
